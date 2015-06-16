@@ -30,6 +30,8 @@ public class BasicEvent implements Event {
 
 	protected final Object data;
 
+	protected String cachedToString;
+
 	/**
 	 * Creates a new {@code BasicEvent}.
 	 *
@@ -50,5 +52,13 @@ public class BasicEvent implements Event {
 	@SuppressWarnings("unchecked")
 	public <T> T getData() {
 		return (T) data;
+	}
+
+	@Override
+	public String toString() {
+		if (cachedToString == null) {
+			cachedToString = "{eventType : \"" + type + "\", data : " + data + "}";
+		}
+		return cachedToString;
 	}
 }
