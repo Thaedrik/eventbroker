@@ -62,7 +62,7 @@ public interface EventBroker {
 	 * resources.
 	 * <p/>
 	 * Implementors should invalidate the broker state by throwing {@link IllegalStateException} when calling any
-	 * methods of a shutdown broker.
+	 * method of a shutdown broker.
 	 * <p/>
 	 * Users should call this method when the {@code EventBroker} is not needed anymore.
 	 */
