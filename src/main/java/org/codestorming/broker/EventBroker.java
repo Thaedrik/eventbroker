@@ -22,7 +22,7 @@ package org.codestorming.broker;
 /**
  * An {@code EventBroker} is a service used for firing and observing to {@link Event}s.
  *
- * @author Thaedrik &lt;thaedrik@codestorming.org&gt;
+ * @author Thaedrik <thaedrik@codestorming.org>
  */
 public interface EventBroker {
 
@@ -61,10 +61,13 @@ public interface EventBroker {
 	 * Implementors may use this method to clear the {@code EventBroker} internal state and/or free allocated
 	 * resources.
 	 * <p/>
-	 * Implementors should invalidate the broker state by throwing {@link IllegalStateException} when calling any
-	 * method of a shutdown broker.
+	 * Implementors should invalidate the broker state by throwing {@link IllegalStateException} when calling any method
+	 * of a shutdown broker.
 	 * <p/>
 	 * Users should call this method when the {@code EventBroker} is not needed anymore.
+	 *
+	 * @param clearQueue Indicate if the event queue must be cleared of unhandled events before being shutdown.
+	 * @since 2.0
 	 */
-	void tearDown();
+	void tearDown(boolean clearQueue);
 }

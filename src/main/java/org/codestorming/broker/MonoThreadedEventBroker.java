@@ -34,10 +34,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * All event notifications are signaled via a <strong>unique</strong> thread owned by the {@code
  * MonoThreadedEventBroker}.
  * <p/>
- * A call to the {@link #tearDown()} method is necessary to stop the thread for listening, otherwise it may prevent the
- * JVM to shutdown.
+ * A call to the {@link #tearDown(boolean)} method is necessary to stop the thread for listening, otherwise it may
+ * prevent the JVM to shutdown.
  *
- * @author Thaedrik &lt;thaedrik@codestorming.org&gt;
+ * @author Thaedrik <thaedrik@codestorming.org>
  */
 public class MonoThreadedEventBroker implements EventBroker {
 
@@ -157,8 +157,9 @@ public class MonoThreadedEventBroker implements EventBroker {
 	}
 
 	@Override
-	public void tearDown() {
+	public void tearDown(boolean clearQueue) {
 		if (!stopped) {
+			eventQueue.clear();
 			// Firing the STOP_EVENT
 			eventQueue.add(STOP_EVENT);
 		}
