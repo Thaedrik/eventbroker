@@ -111,7 +111,7 @@ public abstract class AbstractEventBroker implements EventBroker {
 
 	@Override
 	public void tearDown(boolean clearQueue) {
-		if (!stopped) {
+		if (!stopped && clearQueue) {
 			eventQueue.clear();
 		}
 	}
