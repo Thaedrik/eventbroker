@@ -32,4 +32,16 @@ public interface EventObserver {
 	 * @param event The {@link Event} to notify.
 	 */
 	void notify(Event event);
+
+	/**
+	 * Indicates if this {@code EventObserver} should be notified inside a worker thread.
+	 * <p/>
+	 * This is a hint, the {@link EventBroker} implementation may ignore it.
+	 *
+	 * @return {@code true} if this {@code EventObserver} should be notified inside a worker thread;{@code false}
+	 * otherwise.
+	 *
+	 * @since 2.0
+	 */
+	boolean executeInWorker();
 }
