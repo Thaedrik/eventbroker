@@ -78,4 +78,11 @@ public class MonoThreadedEventBroker extends AbstractEventBroker implements Even
 		eventHandler.start();
 	}
 
+	@Override
+	public void tearDown(boolean clearQueue) {
+		if (!stopped) {
+			super.tearDown(clearQueue);
+			eventQueue.add(STOP_EVENT);
+		}
+	}
 }
