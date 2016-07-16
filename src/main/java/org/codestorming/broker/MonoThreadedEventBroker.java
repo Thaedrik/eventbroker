@@ -19,14 +19,7 @@
 
 package org.codestorming.broker;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Mono threaded implementation of the {@link EventBroker} interface.
@@ -39,23 +32,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * @author Thaedrik <thaedrik@codestorming.org>
  */
-public class MonoThreadedEventBroker implements EventBroker {
+public class MonoThreadedEventBroker extends AbstractEventBroker implements EventBroker {
 
 	/**
 	 * {@link Event} instance used to stop the event handling thread.
 	 */
 	protected static final Event STOP_EVENT = new BasicEvent(null, null);
-
-	protected final BlockingQueue<Event> eventQueue = new LinkedBlockingQueue<>();
-
-	protected final Map<String, Set<EventObserver>> typedObservers = new HashMap<>();
-
-	/**
-	 * Read-Write lock for synchronizing observers collections access.
-	 */
-	protected final ReadWriteLock observersLock = new ReentrantReadWriteLock();
-
-	protected volatile boolean stopped;
 
 	protected final Thread eventHandler = new Thread("EventBroker-EventHandler") {
 		@Override
@@ -96,78 +78,4 @@ public class MonoThreadedEventBroker implements EventBroker {
 		eventHandler.start();
 	}
 
-	@Override
-	public void fire(Event event) {
-		checkState();
-		if (event == null) {
-			throw new NullPointerException("Event cannot be null");
-		}// else
-		try {
-			eventQueue.put(event);
-		} catch (InterruptedException e) {
-			System.err.println("Fire was interrupted for the event :\n\t" + event);
-		}
-	}
-
-	@Override
-	public void register(EventObserver eventObserver, String eventType) {
-		checkState();
-		if (eventType == null || eventObserver == null) {
-			throw new NullPointerException("eventType and eventObserver cannot be null");
-		}// else
-		observersLock.readLock().lock();
-		Set<EventObserver> observers = typedObservers.get(eventType);
-		observersLock.readLock().unlock();
-		if (observers == null) {
-			observers = createObserverSet(eventType);
-		}
-		observersLock.writeLock().lock();
-		observers.add(eventObserver);
-		observersLock.writeLock().unlock();
-	}
-
-	private Set<EventObserver> createObserverSet(String eventType) {
-		observersLock.writeLock().lock();
-		try {
-			Set<EventObserver> observers = typedObservers.get(eventType);
-			if (observers == null) {
-				observers = new HashSet<>();
-				typedObservers.put(eventType, observers);
-			}
-			return observers;
-		} finally {
-			observersLock.writeLock().unlock();
-		}
-	}
-
-	@Override
-	public void unregister(EventObserver eventObserver, String eventType) {
-		checkState();
-		if (eventType == null || eventObserver == null) {
-			throw new NullPointerException("eventType and eventObserver cannot be null");
-		}// else
-		observersLock.readLock().lock();
-		Set<EventObserver> observers = typedObservers.get(eventType);
-		observersLock.readLock().unlock();
-		if (observers != null) {
-			observersLock.writeLock().lock();
-			observers.remove(eventObserver);
-			observersLock.writeLock().unlock();
-		}
-	}
-
-	@Override
-	public void tearDown(boolean clearQueue) {
-		if (!stopped) {
-			eventQueue.clear();
-			// Firing the STOP_EVENT
-			eventQueue.add(STOP_EVENT);
-		}
-	}
-
-	private void checkState() {
-		if (stopped) {
-			throw new IllegalStateException("Trying to call a shutdown EventBroker.");
-		}
-	}
 }
