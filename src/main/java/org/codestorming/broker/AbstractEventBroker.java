@@ -121,4 +121,25 @@ public abstract class AbstractEventBroker implements EventBroker {
 			throw new IllegalStateException("Trying to call a shutdown EventBroker.");
 		}
 	}
+
+	/**
+	 * Returns an array with the current registered observers for the given type of event.
+	 * <p/>
+	 * <strong>ATTENTION:</strong> Using this method to notify all the observers implies the possibility
+	 * of an observer being notified after its removal.
+	 *
+	 * @param eventType The Event type.
+	 * @return an array with the current registered observers for the given type of event.
+	 * @since 2.1
+	 */
+	protected EventObserver[] currentObservers(String eventType) {
+		EventObserver[] obs = new EventObserver[0];
+		observersLock.readLock().lock();
+		try {
+			obs = typedObservers.get(eventType).toArray(obs);
+		} finally {
+			observersLock.readLock().unlock();
+		}
+		return obs;
+	}
 }
